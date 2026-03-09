@@ -1,6 +1,4 @@
 import { NextRequest, NextResponse } from "next/server";
-import FormData from "form-data";
-import axios from "axios";
 
 export const runtime = 'edge';
 
@@ -42,48 +40,70 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    // 转换为 Buffer
-    console.log("4. 转换图片为 Buffer...");
-    const bytes = await image.arrayBuffer();
-    const buffer = Buffer.from(bytes);
-    console.log(`   Buffer 大小: ${buffer.length} bytes`);
+    // 转换为 Blob
+    console.log("4. 准备上传数据...");
+    const imageBlob = await image.arrayBuffer();
 
-    // 创建 FormData
+    // 创建 FormData (使用原生 FormData)
     console.log("5. 创建 FormData...");
-    const form = new FormData();
-    form.append("image_file", buffer, {
-      filename: image.name,
-      contentType: image.type,
-    });
-    form.append("size", "auto");
+    const uploadFormData = new FormData();
+    uploadFormData.append("image_file", new Blob([imageBlob], { type: image.type }), image.name);
+    uploadFormData.append("size", "auto");
 
     // 调用 Remove.bg API
     console.log("6. 调用 Remove.bg API...");
     const startTime = Date.now();
     
-    const response = await axios.post(
-      "https://api.remove.bg/v1.0/removebg",
-      form,
-      {
-        headers: {
-          ...form.getHeaders(),
-          "X-Api-Key": apiKey,
-        },
-        responseType: "arraybuffer",
-        timeout: 30000, // 30 秒超时
-      }
-    );
+    const response = await fetch("https://api.remove.bg/v1.0/removebg", {
+      method: "POST",
+      headers: {
+        "X-Api-Key": apiKey,
+      },
+      body: uploadFormData,
+    });
 
     const duration = Date.now() - startTime;
-    console.log(`7. API 响应成功 (耗时: ${duration}ms)`);
-    console.log(`   响应大小: ${response.data.length} bytes`);
+    console.log(`7. API 响应 (耗时: ${duration}ms, 状态: ${response.status})`);
+
+    if (!response.ok) {
+      const errorText = await response.text();
+      console.error("API 错误:", errorText);
+      
+      if (response.status === 403) {
+        return NextResponse.json(
+          { error: "API Key 无效或已过期" },
+          { status: 403 }
+        );
+      } else if (response.status === 402) {
+        return NextResponse.json(
+          { error: "账户余额不足，请充值" },
+          { status: 402 }
+        );
+      } else if (response.status === 429) {
+        return NextResponse.json(
+          { error: "请求过于频繁，请稍后重试" },
+          { status: 429 }
+        );
+      }
+      
+      return NextResponse.json(
+        { error: `处理失败: ${errorText}` },
+        { status: response.status }
+      );
+    }
+
+    // 获取处理后的图片
+    const resultBlob = await response.arrayBuffer();
+    console.log(`8. 获取结果 (大小: ${resultBlob.byteLength} bytes)`);
 
     // 转换为 base64
-    console.log("8. 转换为 base64...");
-    const base64Image = Buffer.from(response.data).toString("base64");
+    console.log("9. 转换为 base64...");
+    const base64Image = btoa(
+      String.fromCharCode(...new Uint8Array(resultBlob))
+    );
     const dataUrl = `data:image/png;base64,${base64Image}`;
 
-    console.log("9. 处理完成，返回结果");
+    console.log("10. 处理完成，返回结果");
     console.log("=== API 请求结束 ===\n");
 
     return NextResponse.json({
@@ -92,41 +112,10 @@ export async function POST(request: NextRequest) {
     });
   } catch (error: any) {
     console.error("!!! 处理图片时出错 !!!");
-    console.error("错误类型:", error.constructor.name);
+    console.error("错误类型:", error.constructor?.name);
     console.error("错误消息:", error.message);
-    
-    if (error.response) {
-      console.error("API 响应状态:", error.response.status);
-      console.error("API 响应数据:", error.response.data?.toString?.() || error.response.data);
-    }
-    
-    if (error.code) {
-      console.error("错误代码:", error.code);
-    }
-    
     console.error("完整错误:", error);
     console.log("=== API 请求结束（错误）===\n");
-
-    // 处理 Remove.bg 特定错误
-    if (error.response) {
-      const status = error.response.status;
-      if (status === 403) {
-        return NextResponse.json(
-          { error: "API Key 无效或已过期" },
-          { status: 403 }
-        );
-      } else if (status === 402) {
-        return NextResponse.json(
-          { error: "账户余额不足，请充值" },
-          { status: 402 }
-        );
-      } else if (status === 429) {
-        return NextResponse.json(
-          { error: "请求过于频繁，请稍后重试" },
-          { status: 429 }
-        );
-      }
-    }
 
     return NextResponse.json(
       { error: "处理失败，请稍后重试" },
