@@ -2,6 +2,20 @@ import { NextRequest, NextResponse } from "next/server";
 
 export const runtime = 'edge';
 
+// 将 ArrayBuffer 转换为 base64
+function arrayBufferToBase64(buffer: ArrayBuffer): string {
+  const bytes = new Uint8Array(buffer);
+  let binary = '';
+  const chunkSize = 0x8000; // 32KB chunks
+  
+  for (let i = 0; i < bytes.length; i += chunkSize) {
+    const chunk = bytes.subarray(i, Math.min(i + chunkSize, bytes.length));
+    binary += String.fromCharCode.apply(null, Array.from(chunk));
+  }
+  
+  return btoa(binary);
+}
+
 export async function POST(request: NextRequest) {
   console.log("=== API 请求开始 ===");
   
@@ -98,9 +112,7 @@ export async function POST(request: NextRequest) {
 
     // 转换为 base64
     console.log("9. 转换为 base64...");
-    const base64Image = btoa(
-      String.fromCharCode(...new Uint8Array(resultBlob))
-    );
+    const base64Image = arrayBufferToBase64(resultBlob);
     const dataUrl = `data:image/png;base64,${base64Image}`;
 
     console.log("10. 处理完成，返回结果");
@@ -114,11 +126,11 @@ export async function POST(request: NextRequest) {
     console.error("!!! 处理图片时出错 !!!");
     console.error("错误类型:", error.constructor?.name);
     console.error("错误消息:", error.message);
-    console.error("完整错误:", error);
+    console.error("错误堆栈:", error.stack);
     console.log("=== API 请求结束（错误）===\n");
 
     return NextResponse.json(
-      { error: "处理失败，请稍后重试" },
+      { error: `处理失败: ${error.message}` },
       { status: 500 }
     );
   }
