@@ -2,6 +2,8 @@ import { NextRequest, NextResponse } from "next/server";
 import FormData from "form-data";
 import axios from "axios";
 
+export const runtime = 'edge';
+
 export async function POST(request: NextRequest) {
   console.log("=== API 请求开始 ===");
   
