@@ -13,7 +13,7 @@
 ## 技术栈
 
 - **前端**: Next.js 14 + TypeScript + Tailwind CSS
-- **AI**: Replicate API (rembg 模型)
+- **AI**: Remove.bg API
 - **部署**: Cloudflare Pages
 
 ## 快速开始
@@ -39,13 +39,14 @@ npm install
 cp .env.example .env.local
 ```
 
-编辑 `.env.local`，填入你的 Replicate API Token:
+编辑 `.env.local`，填入你的 Remove.bg API Key:
 
 ```env
-REPLICATE_API_TOKEN=your_replicate_api_token_here
+REMOVEBG_API_KEY=your_removebg_api_key_here
 ```
 
-> 获取 API Token: https://replicate.com/account/api-tokens
+> 获取 API Key: https://www.remove.bg/api
+> 免费账户: 50 次/月
 
 ### 4. 启动开发服务器
 
@@ -72,7 +73,7 @@ npm run dev
 在 Cloudflare Pages 设置中添加:
 
 ```
-REPLICATE_API_TOKEN=your_replicate_api_token_here
+REMOVEBG_API_KEY=your_removebg_api_key_here
 ```
 
 ### 4. 部署
@@ -89,9 +90,15 @@ REPLICATE_API_TOKEN=your_replicate_api_token_here
 
 ## 成本估算
 
-- **开发阶段**: ~$10-20/月（测试用）
-- **100 用户/天**: ~$40-80/月
-- **1000 用户/天**: ~$400-800/月
+### Remove.bg 定价
+- **免费版**: 50 次/月
+- **订阅版**: $9/月（500 次）或 $99/月（5000 次）
+- **按需付费**: $0.20/张（高清）
+
+### 预估成本
+- **开发阶段**: 免费（50 次/月）
+- **100 用户/天**: ~$600/月（3000 次）
+- **1000 用户/天**: 需要企业方案
 
 ## 项目结构
 
