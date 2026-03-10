@@ -133,20 +133,22 @@ export default function Home() {
         {/* Main Content */}
         <div className="max-w-4xl mx-auto">
           {!originalImage ? (
-            {error && (
-              <div className="mb-4 p-4 bg-red-50 border border-red-200 rounded-xl text-center">
-                <p className="text-red-600 font-medium">{error}</p>
-                {error.includes("登录") && (
-                  <button
-                    onClick={() => signIn("google")}
-                    className="mt-3 px-6 py-2 bg-blue-600 text-white rounded-lg text-sm hover:bg-blue-700"
-                  >
-                    立即登录（注册送 3 次免费额度）
-                  </button>
-                )}
-              </div>
-            )}
-            <ImageUploader onUpload={handleUpload} />
+            <>
+              {error && (
+                <div className="mb-4 p-4 bg-red-50 border border-red-200 rounded-xl text-center">
+                  <p className="text-red-600 font-medium">{error}</p>
+                  {error.includes("登录") && (
+                    <button
+                      onClick={() => signIn("google")}
+                      className="mt-3 px-6 py-2 bg-blue-600 text-white rounded-lg text-sm hover:bg-blue-700"
+                    >
+                      立即登录（注册送 3 次免费额度）
+                    </button>
+                  )}
+                </div>
+              )}
+              <ImageUploader onUpload={handleUpload} />
+            </>
           ) : (
             <ImageComparison
               originalImage={originalImage}
