@@ -21,7 +21,7 @@ export default function Home() {
     if (session?.user) {
       fetch("/api/credits")
         .then(res => res.json())
-        .then(data => {
+        .then((data: { credits?: number }) => {
           if (data.credits !== undefined) {
             setCredits(data.credits);
           }
@@ -52,7 +52,7 @@ export default function Home() {
       });
 
       if (!response.ok) {
-        const errorData = await response.json().catch(() => ({}));
+        const errorData = await response.json().catch(() => ({})) as { error?: string; message?: string };
         
         if (errorData.error === "LOGIN_REQUIRED") {
           setError("请先登录后使用，注册即送 3 次免费额度");
@@ -68,7 +68,7 @@ export default function Home() {
         throw new Error(errorData.message || "处理失败，请重试");
       }
 
-      const data = await response.json();
+      const data = await response.json() as { image: string; creditsRemaining?: number };
       setProcessedImage(data.image);
       
       // 更新剩余积分
