@@ -196,4 +196,3 @@ export const POST = auth(async function POST(request: any) {
     );
   }
 }
-}) as any;
