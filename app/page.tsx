@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from "react";
 import { useSession, signIn } from "next-auth/react";
+import Link from "next/link";
 import ImageUploader from "@/components/ImageUploader";
 import ImageComparison from "@/components/ImageComparison";
 import { AuthButton } from "@/components/AuthButton";
@@ -95,6 +96,9 @@ export default function Home() {
       <nav className="w-full bg-white border-b border-gray-200 px-6 py-3 flex justify-between items-center">
         <span className="font-bold text-gray-800">🖼️ Image Background Remover</span>
         <div className="flex items-center gap-4">
+          <Link href="/pricing" className="text-sm text-gray-600 hover:text-blue-600 font-medium">
+            Pricing
+          </Link>
           {/* 积分显示 - 移到导航栏 */}
           {session?.user && credits !== null && (
             <div className="inline-flex items-center gap-2 px-3 py-1 bg-blue-50 rounded-full text-blue-700 text-sm">
@@ -158,6 +162,18 @@ export default function Home() {
               onReset={handleReset}
             />
           )}
+        </div>
+      </div>
+
+      {/* Pricing Preview */}
+        <div className="mt-16 text-center pb-12">
+          <p className="text-gray-500 mb-2">Need more?</p>
+          <Link
+            href="/pricing"
+            className="inline-flex items-center gap-2 px-6 py-2 border border-gray-300 rounded-lg text-sm text-gray-700 hover:bg-gray-50 transition-colors"
+          >
+            View Pricing Plans →
+          </Link>
         </div>
       </div>
 
