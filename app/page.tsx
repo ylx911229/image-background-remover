@@ -3,6 +3,7 @@
 import { useState } from "react";
 import ImageUploader from "@/components/ImageUploader";
 import ImageComparison from "@/components/ImageComparison";
+import { AuthButton } from "@/components/AuthButton";
 
 export default function Home() {
   const [originalImage, setOriginalImage] = useState<string | null>(null);
@@ -46,6 +47,12 @@ export default function Home() {
 
   return (
     <main className="min-h-screen bg-gradient-to-b from-gray-50 to-gray-100">
+      {/* 顶部导航 */}
+      <nav className="w-full bg-white border-b border-gray-200 px-6 py-3 flex justify-between items-center">
+        <span className="font-bold text-gray-800">🖼️ Image Background Remover</span>
+        <AuthButton />
+      </nav>
+
       {/* Hero Section */}
       <div className="container mx-auto px-4 py-12">
         <div className="text-center mb-12">
@@ -58,37 +65,31 @@ export default function Home() {
         </div>
 
         {/* Main Content */}
-        <div className="max-w-6xl mx-auto">
+        <div className="max-w-4xl mx-auto">
           {!originalImage ? (
-            <ImageUploader onUpload={handleUpload} />
+            <ImageUploader onUpload={handleUpload} isProcessing={isProcessing} />
           ) : (
-            <ImageComparison
-              originalImage={originalImage}
-              processedImage={processedImage}
-              isProcessing={isProcessing}
-              error={error}
-              onReset={handleReset}
-            />
+            <div className="space-y-6">
+              <ImageComparison
+                originalImage={originalImage}
+                processedImage={processedImage}
+                isProcessing={isProcessing}
+              />
+              {error && (
+                <div className="text-center text-red-500 bg-red-50 p-4 rounded-lg">
+                  {error}
+                </div>
+              )}
+              <div className="text-center">
+                <button
+                  onClick={handleReset}
+                  className="px-6 py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors"
+                >
+                  处理新图片
+                </button>
+              </div>
+            </div>
           )}
-        </div>
-
-        {/* Features */}
-        <div className="mt-20 grid md:grid-cols-3 gap-8 max-w-5xl mx-auto">
-          <div className="text-center p-6">
-            <div className="text-4xl mb-4">🛍️</div>
-            <h3 className="text-xl font-semibold mb-2">电商产品图</h3>
-            <p className="text-gray-600">快速制作白底图，提升商品展示效果</p>
-          </div>
-          <div className="text-center p-6">
-            <div className="text-4xl mb-4">🎨</div>
-            <h3 className="text-xl font-semibold mb-2">设计素材</h3>
-            <p className="text-gray-600">提取人像做海报，创意设计更自由</p>
-          </div>
-          <div className="text-center p-6">
-            <div className="text-4xl mb-4">📱</div>
-            <h3 className="text-xl font-semibold mb-2">社交头像</h3>
-            <p className="text-gray-600">换背景色，让头像更有个性</p>
-          </div>
         </div>
       </div>
     </main>
