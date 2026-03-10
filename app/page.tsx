@@ -67,7 +67,7 @@ export default function Home() {
         {/* Main Content */}
         <div className="max-w-4xl mx-auto">
           {!originalImage ? (
-            <ImageUploader onUpload={handleUpload} isProcessing={isProcessing} />
+            <ImageUploader onUpload={handleUpload} />
           ) : (
             <div className="space-y-6">
               <ImageComparison
