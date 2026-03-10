@@ -1,4 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
+import { auth } from "@/auth";
+import { getRequestContext } from "@cloudflare/next-on-pages";
 
 export const runtime = 'edge';
 
@@ -20,6 +22,51 @@ export async function POST(request: NextRequest) {
   console.log("=== API 请求开始 ===");
   
   try {
+    // 1. 检查登录状态
+    const session = await auth();
+    if (!session?.user?.email) {
+      return NextResponse.json(
+        { error: "LOGIN_REQUIRED", message: "请先登录后使用" },
+        { status: 401 }
+      );
+    }
+    
+    const userId = session.user.email;
+    console.log(`用户: ${userId}`);
+
+    // 2. 获取 D1 数据库
+    let db: D1Database | null = null;
+    try {
+      const ctx = getRequestContext();
+      db = (ctx.env as any).DB as D1Database;
+    } catch (e) {
+      console.log("无法获取 D1 连接，跳过积分检查（本地开发模式）");
+    }
+
+    let currentCredits = 999; // 本地开发默认无限
+
+    if (db) {
+      // 初始化新用户积分（3次免费）
+      await db.prepare(
+        `INSERT OR IGNORE INTO user_credits (user_id, credits) VALUES (?, 3)`
+      ).bind(userId).run();
+
+      // 查询当前积分
+      const row = await db.prepare(
+        `SELECT credits FROM user_credits WHERE user_id = ?`
+      ).bind(userId).first() as { credits: number } | null;
+
+      currentCredits = row?.credits ?? 0;
+
+      if (currentCredits <= 0) {
+        return NextResponse.json(
+          { error: "NO_CREDITS", message: "积分不足，请升级套餐" },
+          { status: 402 }
+        );
+      }
+    }
+
+    // 3. 解析图片
     console.log("1. 解析 FormData...");
     const formData = await request.formData();
     const image = formData.get("image") as File;
@@ -44,7 +91,12 @@ export async function POST(request: NextRequest) {
     }
 
     // 检查 API Key
-    const apiKey = process.env.REMOVEBG_API_KEY;
+    let apiKey = process.env.REMOVEBG_API_KEY;
+    try {
+      const ctx = getRequestContext();
+      apiKey = (ctx.env as any).REMOVEBG_API_KEY || apiKey;
+    } catch (e) {}
+    
     console.log(`3. API Key 检查: ${apiKey ? '已配置' : '未配置'}`);
     
     if (!apiKey) {
@@ -106,6 +158,14 @@ export async function POST(request: NextRequest) {
       );
     }
 
+    // 4. 成功后扣除积分
+    if (db) {
+      await db.prepare(
+        `UPDATE user_credits SET credits = credits - 1, total_used = total_used + 1, updated_at = unixepoch() WHERE user_id = ?`
+      ).bind(userId).run();
+      currentCredits -= 1;
+    }
+
     // 获取处理后的图片
     const resultBlob = await response.arrayBuffer();
     console.log(`8. 获取结果 (大小: ${resultBlob.byteLength} bytes)`);
@@ -121,6 +181,7 @@ export async function POST(request: NextRequest) {
     return NextResponse.json({
       success: true,
       image: dataUrl,
+      creditsRemaining: currentCredits,
     });
   } catch (error: any) {
     console.error("!!! 处理图片时出错 !!!");
