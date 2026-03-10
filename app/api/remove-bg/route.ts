@@ -18,7 +18,7 @@ function arrayBufferToBase64(buffer: ArrayBuffer): string {
   return btoa(binary);
 }
 
-export async function POST(request: NextRequest) {
+export const POST = auth(async function POST(request: any) {
   console.log("=== API 请求开始 ===");
   
   try {
@@ -196,3 +196,4 @@ export async function POST(request: NextRequest) {
     );
   }
 }
+}) as any;
