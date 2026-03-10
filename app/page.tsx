@@ -21,9 +21,10 @@ export default function Home() {
     if (session?.user) {
       fetch("/api/credits")
         .then(res => res.json())
-        .then((data: { credits?: number }) => {
-          if (data.credits !== undefined) {
-            setCredits(data.credits);
+        .then((data) => {
+          const d = data as { credits?: number };
+          if (d.credits !== undefined) {
+            setCredits(d.credits);
           }
         })
         .catch(() => {});
