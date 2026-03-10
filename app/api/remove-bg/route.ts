@@ -23,7 +23,7 @@ export const POST = auth(async function POST(request: any) {
   
   try {
     // 1. 检查登录状态
-    const session = await auth();
+    const session = request.auth;
     if (!session?.user?.email) {
       return NextResponse.json(
         { error: "LOGIN_REQUIRED", message: "请先登录后使用" },
