@@ -175,7 +175,6 @@ export default function Home() {
             View Pricing Plans →
           </Link>
         </div>
-      </div>
 
       {/* 升级弹窗 */}
       <UpgradeModal 
