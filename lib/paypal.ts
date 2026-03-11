@@ -1,6 +1,6 @@
 // PayPal REST API helpers - Edge Runtime compatible (no Node.js SDK)
 
-export const PAYPAL_BASE = "https://api-m.sandbox.paypal.com";
+export const PAYPAL_BASE = "https://api-m.paypal.com";
 
 // Credit pack config
 export const CREDIT_PLANS: Record<string, { amount: string; credits: number; description: string }> = {
