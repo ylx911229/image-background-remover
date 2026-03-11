@@ -114,9 +114,10 @@ const faqs = [
 export default function PricingPage() {
   const [tab, setTab] = useState<PricingTab>("credits");
   const [openFaq, setOpenFaq] = useState<number | null>(null);
+  const [selectedPlan, setSelectedPlan] = useState<string | null>(null);
 
-  const handleBuy = () => {
-    alert("Payment integration coming soon! We'll notify you when it's ready.");
+  const handleBuy = (planName: string) => {
+    setSelectedPlan(planName);
   };
 
   return (
@@ -217,7 +218,7 @@ export default function PricingPage() {
                   ))}
                 </ul>
                 <button
-                  onClick={handleBuy}
+                  onClick={() => handleBuy(plan.name)}
                   className={`w-full py-3 rounded-xl font-medium transition-colors ${
                     plan.highlighted
                       ? "bg-blue-600 text-white hover:bg-blue-700"
@@ -275,7 +276,7 @@ export default function PricingPage() {
                   ))}
                 </ul>
                 <button
-                  onClick={handleBuy}
+                  onClick={() => handleBuy(plan.name)}
                   className={`w-full py-3 rounded-xl font-medium transition-colors ${
                     plan.highlighted
                       ? "bg-blue-600 text-white hover:bg-blue-700"
@@ -340,6 +341,44 @@ export default function PricingPage() {
           </Link>
         </div>
       </div>
+
+      {/* Coming Soon Modal */}
+      {selectedPlan && (
+        <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 px-4" onClick={() => setSelectedPlan(null)}>
+          <div className="bg-white rounded-2xl p-8 max-w-md w-full shadow-2xl" onClick={e => e.stopPropagation()}>
+            <div className="text-center">
+              <div className="text-5xl mb-4">🚀</div>
+              <h2 className="text-2xl font-bold text-gray-900 mb-2">Payment Coming Soon</h2>
+              <p className="text-gray-500 mb-2">
+                You selected: <span className="font-semibold text-blue-600">{selectedPlan}</span>
+              </p>
+              <p className="text-gray-500 mb-6">
+                We're integrating PayPal payments. You'll be able to purchase this plan very soon!
+              </p>
+              <div className="bg-blue-50 border border-blue-100 rounded-xl p-4 mb-6 text-left">
+                <p className="text-sm text-blue-700 font-medium mb-1">💡 In the meantime:</p>
+                <ul className="text-sm text-blue-600 space-y-1">
+                  <li>✓ Sign up for a free account</li>
+                  <li>✓ Get 3 free background removals</li>
+                  <li>✓ No credit card required</li>
+                </ul>
+              </div>
+              <button
+                onClick={() => setSelectedPlan(null)}
+                className="w-full py-3 bg-blue-600 text-white rounded-xl font-medium hover:bg-blue-700 transition-colors mb-3"
+              >
+                Got it, notify me when ready
+              </button>
+              <button
+                onClick={() => setSelectedPlan(null)}
+                className="w-full py-2 text-gray-400 hover:text-gray-600 text-sm transition-colors"
+              >
+                Close
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }
