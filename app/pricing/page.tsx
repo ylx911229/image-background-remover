@@ -2,8 +2,18 @@
 
 import { useState } from "react";
 import Link from "next/link";
+import { useSession } from "next-auth/react";
+import PayPalCheckout from "@/components/PayPalCheckout";
 
 type PricingTab = "credits" | "subscription";
+type ModalState = {
+  open: boolean;
+  planName: string;
+  type: "order" | "subscription";
+  success: boolean;
+  creditsAdded?: number;
+  newTotal?: number;
+};
 
 const creditPlans = [
   {
@@ -114,10 +124,20 @@ const faqs = [
 export default function PricingPage() {
   const [tab, setTab] = useState<PricingTab>("credits");
   const [openFaq, setOpenFaq] = useState<number | null>(null);
-  const [selectedPlan, setSelectedPlan] = useState<string | null>(null);
+  const { data: session } = useSession();
+  const [modal, setModal] = useState<ModalState>({
+    open: false,
+    planName: "",
+    type: "order",
+    success: false,
+  });
 
-  const handleBuy = (planName: string) => {
-    setSelectedPlan(planName);
+  const handleBuy = (planName: string, type: "order" | "subscription") => {
+    setModal({ open: true, planName, type, success: false });
+  };
+
+  const closeModal = () => {
+    setModal((m) => ({ ...m, open: false, success: false }));
   };
 
   return (
@@ -218,7 +238,7 @@ export default function PricingPage() {
                   ))}
                 </ul>
                 <button
-                  onClick={() => handleBuy(plan.name)}
+                  onClick={() => handleBuy(plan.name, "order")}
                   className={`w-full py-3 rounded-xl font-medium transition-colors ${
                     plan.highlighted
                       ? "bg-blue-600 text-white hover:bg-blue-700"
@@ -276,7 +296,7 @@ export default function PricingPage() {
                   ))}
                 </ul>
                 <button
-                  onClick={() => handleBuy(plan.name)}
+                  onClick={() => handleBuy(plan.name, "subscription")}
                   className={`w-full py-3 rounded-xl font-medium transition-colors ${
                     plan.highlighted
                       ? "bg-blue-600 text-white hover:bg-blue-700"
@@ -342,40 +362,88 @@ export default function PricingPage() {
         </div>
       </div>
 
-      {/* Coming Soon Modal */}
-      {selectedPlan && (
-        <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 px-4" onClick={() => setSelectedPlan(null)}>
-          <div className="bg-white rounded-2xl p-8 max-w-md w-full shadow-2xl" onClick={e => e.stopPropagation()}>
-            <div className="text-center">
-              <div className="text-5xl mb-4">🚀</div>
-              <h2 className="text-2xl font-bold text-gray-900 mb-2">Payment Coming Soon</h2>
-              <p className="text-gray-500 mb-2">
-                You selected: <span className="font-semibold text-blue-600">{selectedPlan}</span>
-              </p>
-              <p className="text-gray-500 mb-6">
-                We're integrating PayPal payments. You'll be able to purchase this plan very soon!
-              </p>
-              <div className="bg-blue-50 border border-blue-100 rounded-xl p-4 mb-6 text-left">
-                <p className="text-sm text-blue-700 font-medium mb-1">💡 In the meantime:</p>
-                <ul className="text-sm text-blue-600 space-y-1">
-                  <li>✓ Sign up for a free account</li>
-                  <li>✓ Get 3 free background removals</li>
-                  <li>✓ No credit card required</li>
-                </ul>
+      {/* PayPal Payment Modal */}
+      {modal.open && (
+        <div
+          className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 px-4"
+          onClick={closeModal}
+        >
+          <div
+            className="bg-white rounded-2xl p-8 max-w-md w-full shadow-2xl"
+            onClick={(e) => e.stopPropagation()}
+          >
+            {modal.success ? (
+              // Success State
+              <div className="text-center">
+                <div className="text-5xl mb-4">🎉</div>
+                <h2 className="text-2xl font-bold text-gray-900 mb-2">Payment Successful!</h2>
+                {modal.type === "order" ? (
+                  <p className="text-gray-500 mb-6">
+                    <span className="font-semibold text-blue-600">+{modal.creditsAdded} credits</span> added to your account.
+                    {modal.newTotal !== undefined && (
+                      <span className="block mt-1 text-sm text-gray-400">New balance: {modal.newTotal} credits</span>
+                    )}
+                  </p>
+                ) : (
+                  <p className="text-gray-500 mb-6">
+                    Your subscription is now <span className="font-semibold text-green-600">active</span>!
+                    Credits will be added to your account shortly.
+                  </p>
+                )}
+                <Link
+                  href="/"
+                  className="block w-full py-3 bg-blue-600 text-white rounded-xl font-medium hover:bg-blue-700 transition-colors text-center"
+                >
+                  Start Removing Backgrounds →
+                </Link>
               </div>
-              <button
-                onClick={() => setSelectedPlan(null)}
-                className="w-full py-3 bg-blue-600 text-white rounded-xl font-medium hover:bg-blue-700 transition-colors mb-3"
-              >
-                Got it, notify me when ready
-              </button>
-              <button
-                onClick={() => setSelectedPlan(null)}
-                className="w-full py-2 text-gray-400 hover:text-gray-600 text-sm transition-colors"
-              >
-                Close
-              </button>
-            </div>
+            ) : (
+              // Payment State
+              <div>
+                <div className="flex items-center justify-between mb-6">
+                  <div>
+                    <h2 className="text-xl font-bold text-gray-900">
+                      {modal.type === "order" ? "Buy" : "Subscribe to"} {modal.planName}
+                    </h2>
+                    <p className="text-sm text-gray-400 mt-0.5">Secure payment via PayPal</p>
+                  </div>
+                  <button
+                    onClick={closeModal}
+                    className="text-gray-400 hover:text-gray-600 text-2xl leading-none"
+                  >
+                    ×
+                  </button>
+                </div>
+
+                {!session ? (
+                  // Not logged in
+                  <div className="text-center py-4">
+                    <div className="text-4xl mb-3">🔐</div>
+                    <p className="text-gray-600 mb-4">Please sign in to complete your purchase.</p>
+                    <Link
+                      href="/api/auth/signin"
+                      className="block w-full py-3 bg-blue-600 text-white rounded-xl font-medium hover:bg-blue-700 transition-colors text-center"
+                    >
+                      Sign in with Google
+                    </Link>
+                  </div>
+                ) : (
+                  <PayPalCheckout
+                    type={modal.type}
+                    planName={modal.planName}
+                    onSuccess={(data) => {
+                      setModal((m) => ({
+                        ...m,
+                        success: true,
+                        creditsAdded: data.creditsAdded,
+                        newTotal: data.newTotal,
+                      }));
+                    }}
+                    onError={() => {}}
+                  />
+                )}
+              </div>
+            )}
           </div>
         </div>
       )}
