@@ -8,7 +8,7 @@ export function Providers({ children }: { children: React.ReactNode }) {
     <SessionProvider>
       <PayPalScriptProvider
         options={{
-          clientId: process.env.NEXT_PUBLIC_PAYPAL_CLIENT_ID!,
+          clientId: "AWpItvsSz5htPWbkgAkzqJXxISN8ei-pGt2kFDPlMfr_T17DMnTkLU0_xM3GFBlUyBmPsBs0PXMfQ2AV",
           currency: "USD",
           components: "buttons",
           intent: "capture",
