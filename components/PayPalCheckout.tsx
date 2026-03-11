@@ -114,7 +114,7 @@ export default function PayPalCheckout({ type, planName, onSuccess, onError }: P
         onApprove={async (data) => {
           setProcessing(true);
           try {
-            onSuccess({ subscriptionId: data.subscriptionID });
+            onSuccess({ subscriptionId: data.subscriptionID ?? undefined });
           } finally {
             setProcessing(false);
           }
