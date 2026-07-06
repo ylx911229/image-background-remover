@@ -88,7 +88,11 @@ async function fetchGoogleUser(accessToken: string): Promise<GoogleUserInfo> {
   return payload;
 }
 
-export const onRequestGet: PagesFunction<AuthEnv> = async ({ request, env }) => {
+export const onRequestGet: PagesFunction<AuthEnv> = async ({
+  request,
+  env,
+  waitUntil,
+}) => {
   const clientId = env.GOOGLE_CLIENT_ID;
   const clientSecret = env.GOOGLE_CLIENT_SECRET;
   const missingConfig = [
@@ -252,10 +256,16 @@ export const onRequestGet: PagesFunction<AuthEnv> = async ({ request, env }) => 
       )
       .run();
 
-    failureReason = "cleanup_sessions";
-    await env.DB.prepare("DELETE FROM sessions WHERE expires_at <= ?")
-      .bind(new Date().toISOString())
-      .run();
+    waitUntil(
+      env.DB.prepare("DELETE FROM sessions WHERE expires_at <= ?")
+        .bind(new Date().toISOString())
+        .run()
+        .catch((error) => {
+          console.error("Session cleanup failed after Google OAuth login", {
+            message: error instanceof Error ? error.message : String(error),
+          });
+        }),
+    );
 
     const redirectPath = getSafeRedirectPath(stateRow.redirectPath);
     const response = Response.redirect(`${authBaseUrl}${redirectPath}`, 302);
