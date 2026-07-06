@@ -1,0 +1,18 @@
+{
+  "$schema": "./node_modules/wrangler/config-schema.json",
+  "name": "image-background-remover",
+  "pages_build_output_dir": "./out",
+  "compatibility_date": "2026-07-06",
+  "d1_databases": [
+    {
+      "binding": "DB",
+      "database_name": "image-background-remover-auth",
+      "database_id": "00000000-0000-0000-0000-000000000000",
+      "migrations_dir": "migrations"
+    }
+  ],
+  "vars": {
+    "MAX_UPLOAD_MB": "10",
+    "GOOGLE_CLIENT_ID": "733757166908-3182cjuil0qtgj4r7g7j1nqh896u1b3m.apps.googleusercontent.com"
+  }
+}
