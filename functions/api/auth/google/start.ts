@@ -1,4 +1,5 @@
 import {
+  getGoogleRedirectUri,
   getSafeRedirectPath,
   jsonError,
   randomToken,
@@ -42,10 +43,7 @@ export const onRequestGet: PagesFunction<AuthEnv> = async ({ request, env }) => 
 
   const authUrl = new URL(GOOGLE_AUTH_URL);
   authUrl.searchParams.set("client_id", clientId);
-  authUrl.searchParams.set(
-    "redirect_uri",
-    `${requestUrl.origin}/api/auth/google/callback`,
-  );
+  authUrl.searchParams.set("redirect_uri", getGoogleRedirectUri(request, env));
   authUrl.searchParams.set("response_type", "code");
   authUrl.searchParams.set("scope", "openid email profile");
   authUrl.searchParams.set("state", state);

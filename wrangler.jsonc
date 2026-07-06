@@ -13,6 +13,7 @@
   ],
   "vars": {
     "MAX_UPLOAD_MB": "10",
-    "GOOGLE_CLIENT_ID": "733757166908-3182cjuil0qtgj4r7g7j1nqh896u1b3m.apps.googleusercontent.com"
+    "GOOGLE_CLIENT_ID": "733757166908-3182cjuil0qtgj4r7g7j1nqh896u1b3m.apps.googleusercontent.com",
+    "AUTH_BASE_URL": "https://image-background-remover-a0x.pages.dev"
   }
 }

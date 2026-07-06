@@ -2,6 +2,7 @@ export type AuthEnv = {
   DB: D1Database;
   GOOGLE_CLIENT_ID?: string;
   GOOGLE_CLIENT_SECRET?: string;
+  AUTH_BASE_URL?: string;
   AUTH_SESSION_TTL_DAYS?: string;
 };
 
@@ -130,6 +131,20 @@ export function getSafeRedirectPath(value: string | null) {
   }
 
   return value;
+}
+
+export function getAuthBaseUrl(request: Request, env: AuthEnv) {
+  const configured = env.AUTH_BASE_URL?.replace(/\/+$/, "");
+
+  if (configured) {
+    return configured;
+  }
+
+  return new URL(request.url).origin;
+}
+
+export function getGoogleRedirectUri(request: Request, env: AuthEnv) {
+  return `${getAuthBaseUrl(request, env)}/api/auth/google/callback`;
 }
 
 export async function getSessionUser(

@@ -1,5 +1,7 @@
 import {
   createSessionCookie,
+  getAuthBaseUrl,
+  getGoogleRedirectUri,
   getSafeRedirectPath,
   getSessionTtlDays,
   jsonError,
@@ -30,13 +32,12 @@ async function exchangeCode(
   env: AuthEnv,
   code: string,
 ): Promise<GoogleTokenResponse> {
-  const url = new URL(request.url);
   const body = new URLSearchParams({
     client_id: env.GOOGLE_CLIENT_ID || "",
     client_secret: env.GOOGLE_CLIENT_SECRET || "",
     code,
     grant_type: "authorization_code",
-    redirect_uri: `${url.origin}/api/auth/google/callback`,
+    redirect_uri: getGoogleRedirectUri(request, env),
   });
 
   const response = await fetch("https://oauth2.googleapis.com/token", {
@@ -90,11 +91,12 @@ export const onRequestGet: PagesFunction<AuthEnv> = async ({ request, env }) => 
   }
 
   const requestUrl = new URL(request.url);
+  const authBaseUrl = getAuthBaseUrl(request, env);
   const code = requestUrl.searchParams.get("code");
   const state = requestUrl.searchParams.get("state");
 
   if (!code || !state) {
-    return Response.redirect(`${requestUrl.origin}/?auth=missing`, 302);
+    return Response.redirect(`${authBaseUrl}/?auth=missing`, 302);
   }
 
   const stateRow = await env.DB.prepare(
@@ -108,7 +110,7 @@ export const onRequestGet: PagesFunction<AuthEnv> = async ({ request, env }) => 
     .run();
 
   if (!stateRow) {
-    return Response.redirect(`${requestUrl.origin}/?auth=expired`, 302);
+    return Response.redirect(`${authBaseUrl}/?auth=expired`, 302);
   }
 
   try {
@@ -234,7 +236,7 @@ export const onRequestGet: PagesFunction<AuthEnv> = async ({ request, env }) => 
       .run();
 
     const redirectPath = getSafeRedirectPath(stateRow.redirectPath);
-    const response = Response.redirect(`${requestUrl.origin}${redirectPath}`, 302);
+    const response = Response.redirect(`${authBaseUrl}${redirectPath}`, 302);
     response.headers.append(
       "Set-Cookie",
       createSessionCookie(request, sessionToken, expiresAt),
@@ -242,7 +244,7 @@ export const onRequestGet: PagesFunction<AuthEnv> = async ({ request, env }) => 
 
     return response;
   } catch {
-    return Response.redirect(`${requestUrl.origin}/?auth=failed`, 302);
+    return Response.redirect(`${authBaseUrl}/?auth=failed`, 302);
   }
 };
 
