@@ -34,6 +34,22 @@ function getFailureRedirect(authBaseUrl: string, reason: string) {
   );
 }
 
+function redirectWithSessionCookie(
+  location: string,
+  request: Request,
+  sessionToken: string,
+  expiresAt: Date,
+) {
+  return new Response(null, {
+    status: 302,
+    headers: {
+      Location: location,
+      "Set-Cookie": createSessionCookie(request, sessionToken, expiresAt),
+      "Cache-Control": "no-store",
+    },
+  });
+}
+
 async function exchangeCode(
   request: Request,
   env: AuthEnv,
@@ -263,10 +279,11 @@ export const onRequestGet: PagesFunction<AuthEnv> = async ({
 
     failureReason = "build_response";
     const redirectPath = getSafeRedirectPath(stateRow.redirectPath);
-    const response = Response.redirect(`${authBaseUrl}${redirectPath}`, 302);
-    response.headers.append(
-      "Set-Cookie",
-      createSessionCookie(request, sessionToken, expiresAt),
+    const response = redirectWithSessionCookie(
+      `${authBaseUrl}${redirectPath}`,
+      request,
+      sessionToken,
+      expiresAt,
     );
 
     waitUntil(
