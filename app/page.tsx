@@ -49,6 +49,9 @@ export default function Home() {
             Image Background Remover
           </Link>
           <nav className="flex items-center gap-4 text-sm text-slate-600">
+            <Link className="transition hover:text-ink" href="/pricing">
+              Pricing
+            </Link>
             <a className="transition hover:text-ink" href="#faq">
               FAQ
             </a>
