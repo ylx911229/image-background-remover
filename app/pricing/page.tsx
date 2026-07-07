@@ -1,4 +1,4 @@
-import { ArrowRight, Check, ShieldCheck } from "lucide-react";
+import { ArrowRight, Check, CreditCard, ShieldCheck } from "lucide-react";
 import Link from "next/link";
 import { AuthButton } from "@/components/auth-button";
 import { CreditStatus } from "@/components/credit-status";
@@ -168,21 +168,33 @@ export default function PricingPage() {
                   <ArrowRight aria-hidden="true" size={17} />
                 </Link>
               ) : (
-                <form action="/api/paypal/create-order" method="post">
-                  <input name="plan" type="hidden" value={plan.planId} />
-                  <button
-                    className={[
-                      "mt-7 inline-flex h-12 w-full items-center justify-center gap-2 rounded-md px-4 text-sm font-bold transition focus:outline-none focus:ring-2 focus:ring-mint",
-                      plan.featured
-                        ? "bg-mint text-white hover:bg-teal-600"
-                        : "border border-line bg-white text-ink hover:border-slate-400",
-                    ].join(" ")}
-                    type="submit"
-                  >
-                    {plan.cta}
-                    <ArrowRight aria-hidden="true" size={17} />
-                  </button>
-                </form>
+                <div className="mt-7 grid gap-3">
+                  <form action="/api/paypal/create-order" method="post">
+                    <input name="plan" type="hidden" value={plan.planId} />
+                    <button
+                      className={[
+                        "inline-flex h-12 w-full items-center justify-center gap-2 rounded-md px-4 text-sm font-bold transition focus:outline-none focus:ring-2 focus:ring-mint",
+                        plan.featured
+                          ? "bg-mint text-white hover:bg-teal-600"
+                          : "border border-line bg-white text-ink hover:border-slate-400",
+                      ].join(" ")}
+                      type="submit"
+                    >
+                      Pay with PayPal
+                      <ArrowRight aria-hidden="true" size={17} />
+                    </button>
+                  </form>
+                  <form action="/api/creem/create-checkout" method="post">
+                    <input name="plan" type="hidden" value={plan.planId} />
+                    <button
+                      className="inline-flex h-12 w-full items-center justify-center gap-2 rounded-md border border-line bg-white px-4 text-sm font-bold text-ink transition hover:border-slate-400 focus:outline-none focus:ring-2 focus:ring-mint"
+                      type="submit"
+                    >
+                      Pay with card
+                      <CreditCard aria-hidden="true" size={17} />
+                    </button>
+                  </form>
+                </div>
               )}
 
               <div className="mt-7 border-t border-line pt-6">

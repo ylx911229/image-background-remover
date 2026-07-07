@@ -77,6 +77,8 @@ Configured Worker secrets:
 - `PAYPAL_CLIENT_SECRET`
 - `PAYPAL_WEBHOOK_ID`
 - `REMOVEBG_API_KEY`
+- `CREEM_API_KEY`
+- `CREEM_WEBHOOK_SECRET` (needed after creating the Creem Dashboard webhook)
 
 Public Worker vars in `wrangler.jsonc`:
 
@@ -85,6 +87,9 @@ Public Worker vars in `wrangler.jsonc`:
 - `AUTH_BASE_URL=https://imagebackgroundremover.shop`
 - `PAYPAL_CLIENT_ID`
 - `PAYPAL_ENVIRONMENT=live`
+- `CREEM_ENVIRONMENT=test`
+- `CREEM_PLUS_PRODUCT_ID`
+- `CREEM_PRO_PRODUCT_ID`
 
 Do not commit secret values.
 
@@ -116,6 +121,36 @@ Important implementation detail:
 Security note:
 
 - Live PayPal credentials were shared in chat during setup. After verifying production payments, regenerate the Live Client Secret in PayPal and update Cloudflare `PAYPAL_CLIENT_SECRET`.
+
+## Creem
+
+Creem is being added as a second payment provider alongside PayPal.
+
+Current Creem mode:
+
+- `CREEM_ENVIRONMENT=test`
+
+Test products created in Creem:
+
+- Plus: `prod_ffLj3daZrahJANfayIUar`
+- Pro: `prod_1PfeErZ0QirhWWkmnRrn3n`
+
+Checkout behavior:
+
+1. User clicks Pay with card on `/pricing`.
+2. `POST /api/creem/create-checkout` creates a Creem checkout.
+3. User completes payment on Creem.
+4. Creem redirects to `/api/creem/success`.
+5. The redirect signature is verified and credits are granted idempotently.
+6. `POST /api/creem/webhook` also handles `checkout.completed` once the Creem webhook is configured.
+
+Webhook setup note:
+
+- Public Creem API/CLI currently exposes products/checkouts but not webhook creation.
+- Create a test webhook in the Creem Dashboard for `https://imagebackgroundremover.shop/api/creem/webhook`.
+- Subscribe at least to `checkout.completed`.
+- Copy the signing secret into Cloudflare as `CREEM_WEBHOOK_SECRET`.
+- A stray test product named `Probe Recurring` may exist from API probing and can be archived in the Creem Dashboard.
 
 ## Google OAuth
 

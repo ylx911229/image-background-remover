@@ -29,6 +29,9 @@
     "GOOGLE_CLIENT_ID": "733757166908-3182cjuil0qtgj4r7g7j1nqh896u1b3m.apps.googleusercontent.com",
     "AUTH_BASE_URL": "https://imagebackgroundremover.shop",
     "PAYPAL_CLIENT_ID": "AUpQH7LeuVvDSXksc4LxJKeNjW717pyjAr_Uw6e9q-fSTc_BRPeiaTiB9QxRnOaR02DYeh8zUakbVuc0",
-    "PAYPAL_ENVIRONMENT": "live"
+    "PAYPAL_ENVIRONMENT": "live",
+    "CREEM_ENVIRONMENT": "test",
+    "CREEM_PLUS_PRODUCT_ID": "prod_ffLj3daZrahJANfayIUar",
+    "CREEM_PRO_PRODUCT_ID": "prod_1PfeErZ0QirhWWkmnRrn3n"
   }
 }

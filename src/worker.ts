@@ -1,5 +1,8 @@
 import * as googleCallback from "../functions/api/auth/google/callback";
 import * as googleStart from "../functions/api/auth/google/start";
+import * as creemCreateCheckout from "../functions/api/creem/create-checkout";
+import * as creemSuccess from "../functions/api/creem/success";
+import * as creemWebhook from "../functions/api/creem/webhook";
 import * as credits from "../functions/api/credits";
 import * as logout from "../functions/api/auth/logout";
 import * as me from "../functions/api/auth/me";
@@ -20,6 +23,11 @@ type Env = {
   PAYPAL_CLIENT_SECRET?: string;
   PAYPAL_ENVIRONMENT?: string;
   PAYPAL_WEBHOOK_ID?: string;
+  CREEM_API_KEY?: string;
+  CREEM_ENVIRONMENT?: string;
+  CREEM_PLUS_PRODUCT_ID?: string;
+  CREEM_PRO_PRODUCT_ID?: string;
+  CREEM_WEBHOOK_SECRET?: string;
 };
 
 type PagesHandler = PagesFunction<Env>;
@@ -111,6 +119,37 @@ export default {
         request.method === "POST"
           ? paypalWebhook.onRequestPost
           : paypalWebhook.onRequest,
+        request,
+        env,
+        ctx,
+      );
+    }
+
+    if (pathname === "/api/creem/create-checkout") {
+      return runPagesHandler(
+        request.method === "POST"
+          ? creemCreateCheckout.onRequestPost
+          : creemCreateCheckout.onRequest,
+        request,
+        env,
+        ctx,
+      );
+    }
+
+    if (pathname === "/api/creem/success") {
+      return runPagesHandler(
+        request.method === "GET" ? creemSuccess.onRequestGet : creemSuccess.onRequest,
+        request,
+        env,
+        ctx,
+      );
+    }
+
+    if (pathname === "/api/creem/webhook") {
+      return runPagesHandler(
+        request.method === "POST"
+          ? creemWebhook.onRequestPost
+          : creemWebhook.onRequest,
         request,
         env,
         ctx,
