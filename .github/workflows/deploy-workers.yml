@@ -40,6 +40,8 @@ jobs:
         env:
           CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
           CLOUDFLARE_ACCOUNT_ID: faae494a756090f5f9c0ad7b8d1ddb88
+          CF_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          CF_ACCOUNT_ID: faae494a756090f5f9c0ad7b8d1ddb88
           CI: true
 
       - name: Deploy Worker
@@ -47,3 +49,5 @@ jobs:
         env:
           CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
           CLOUDFLARE_ACCOUNT_ID: faae494a756090f5f9c0ad7b8d1ddb88
+          CF_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          CF_ACCOUNT_ID: faae494a756090f5f9c0ad7b8d1ddb88
