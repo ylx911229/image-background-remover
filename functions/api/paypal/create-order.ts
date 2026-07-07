@@ -25,10 +25,16 @@ export const onRequestPost: PagesFunction<Env> = async ({ request, env }) => {
 
   try {
     const order = await createPayPalOrder(env, plan, requestUrl);
-    const approvalUrl = order.links?.find((link) => link.rel === "approve")?.href;
+    const approvalUrl = order.links?.find(
+      (link) => link.rel === "payer-action" || link.rel === "approve",
+    )?.href;
 
     if (!approvalUrl) {
-      return jsonError("PayPal did not return an approval link.", 502);
+      const rels = order.links?.map((link) => link.rel).join(", ") || "none";
+      return jsonError(
+        `PayPal did not return an approval link. Links: ${rels}.`,
+        502,
+      );
     }
 
     await env.DB.prepare(
