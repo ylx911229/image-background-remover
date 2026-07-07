@@ -8,6 +8,7 @@ type ErrorBody = {
 };
 
 const SUPPORTED_TYPES = new Set(["image/jpeg", "image/png", "image/webp"]);
+// Keep the fallback upload cap aligned with the public UI copy.
 const DEFAULT_MAX_UPLOAD_MB = 10;
 
 function jsonError(message: string, status: number) {
