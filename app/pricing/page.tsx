@@ -10,7 +10,7 @@ const plans = [
     credits: "3 images/month",
     description: "For quick tests and occasional edits.",
     cta: "Start free",
-    href: "/api/auth/google/start",
+    planId: "free",
     featured: false,
     features: [
       "Transparent PNG downloads",
@@ -26,7 +26,7 @@ const plans = [
     credits: "30 images/month",
     description: "For creators and small shops that need clean cutouts weekly.",
     cta: "Choose Plus",
-    href: "/api/auth/google/start",
+    planId: "plus",
     featured: true,
     features: [
       "Everything in Free",
@@ -43,7 +43,7 @@ const plans = [
     credits: "150 images/month",
     description: "For ecommerce teams and frequent image cleanup.",
     cta: "Choose Pro",
-    href: "/api/auth/google/start",
+    planId: "pro",
     featured: false,
     features: [
       "Everything in Plus",
@@ -154,18 +154,31 @@ export default function PricingPage() {
                 </div>
               </div>
 
-              <Link
-                className={[
-                  "mt-7 inline-flex h-12 items-center justify-center gap-2 rounded-md px-4 text-sm font-bold transition focus:outline-none focus:ring-2 focus:ring-mint",
-                  plan.featured
-                    ? "bg-mint text-white hover:bg-teal-600"
-                    : "border border-line bg-white text-ink hover:border-slate-400",
-                ].join(" ")}
-                href={plan.href}
-              >
-                {plan.cta}
-                <ArrowRight aria-hidden="true" size={17} />
-              </Link>
+              {plan.planId === "free" ? (
+                <Link
+                  className="mt-7 inline-flex h-12 items-center justify-center gap-2 rounded-md border border-line bg-white px-4 text-sm font-bold text-ink transition hover:border-slate-400 focus:outline-none focus:ring-2 focus:ring-mint"
+                  href="/api/auth/google/start?redirect=/pricing"
+                >
+                  {plan.cta}
+                  <ArrowRight aria-hidden="true" size={17} />
+                </Link>
+              ) : (
+                <form action="/api/paypal/create-order" method="post">
+                  <input name="plan" type="hidden" value={plan.planId} />
+                  <button
+                    className={[
+                      "mt-7 inline-flex h-12 w-full items-center justify-center gap-2 rounded-md px-4 text-sm font-bold transition focus:outline-none focus:ring-2 focus:ring-mint",
+                      plan.featured
+                        ? "bg-mint text-white hover:bg-teal-600"
+                        : "border border-line bg-white text-ink hover:border-slate-400",
+                    ].join(" ")}
+                    type="submit"
+                  >
+                    {plan.cta}
+                    <ArrowRight aria-hidden="true" size={17} />
+                  </button>
+                </form>
+              )}
 
               <div className="mt-7 border-t border-line pt-6">
                 <ul className="space-y-4">

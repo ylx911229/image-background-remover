@@ -1,7 +1,10 @@
 import * as googleCallback from "../functions/api/auth/google/callback";
 import * as googleStart from "../functions/api/auth/google/start";
+import * as credits from "../functions/api/credits";
 import * as logout from "../functions/api/auth/logout";
 import * as me from "../functions/api/auth/me";
+import * as paypalCapture from "../functions/api/paypal/capture";
+import * as paypalCreateOrder from "../functions/api/paypal/create-order";
 import * as removeBackground from "../functions/api/remove-background";
 
 type Env = {
@@ -12,6 +15,9 @@ type Env = {
   GOOGLE_CLIENT_ID?: string;
   GOOGLE_CLIENT_SECRET?: string;
   AUTH_SESSION_TTL_DAYS?: string;
+  PAYPAL_CLIENT_ID?: string;
+  PAYPAL_CLIENT_SECRET?: string;
+  PAYPAL_ENVIRONMENT?: string;
 };
 
 type PagesHandler = PagesFunction<Env>;
@@ -61,6 +67,37 @@ export default {
     if (pathname === "/api/auth/me") {
       return runPagesHandler(
         request.method === "GET" ? me.onRequestGet : me.onRequest,
+        request,
+        env,
+        ctx,
+      );
+    }
+
+    if (pathname === "/api/credits") {
+      return runPagesHandler(
+        request.method === "GET" ? credits.onRequestGet : credits.onRequest,
+        request,
+        env,
+        ctx,
+      );
+    }
+
+    if (pathname === "/api/paypal/create-order") {
+      return runPagesHandler(
+        request.method === "POST"
+          ? paypalCreateOrder.onRequestPost
+          : paypalCreateOrder.onRequest,
+        request,
+        env,
+        ctx,
+      );
+    }
+
+    if (pathname === "/api/paypal/capture") {
+      return runPagesHandler(
+        request.method === "GET"
+          ? paypalCapture.onRequestGet
+          : paypalCapture.onRequest,
         request,
         env,
         ctx,

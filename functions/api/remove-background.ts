@@ -1,4 +1,8 @@
+import { getSessionUser } from "../_lib/auth";
+import { consumeCredit, getCreditSummary } from "../_lib/credits";
+
 type Env = {
+  DB: D1Database;
   REMOVEBG_API_KEY?: string;
   MAX_UPLOAD_MB?: string;
 };
@@ -54,6 +58,18 @@ async function readRemoveBgError(response: Response) {
 }
 
 export const onRequestPost: PagesFunction<Env> = async ({ request, env }) => {
+  const session = await getSessionUser(request, env);
+
+  if (!session) {
+    return jsonError("Please sign in before removing backgrounds.", 401);
+  }
+
+  const credits = await getCreditSummary(env, session.user.id);
+
+  if (credits.totalRemaining <= 0) {
+    return jsonError("You are out of image credits. Please upgrade your plan.", 402);
+  }
+
   if (!env.REMOVEBG_API_KEY) {
     return jsonError("Remove.bg API key is not configured.", 500);
   }
@@ -104,6 +120,12 @@ export const onRequestPost: PagesFunction<Env> = async ({ request, env }) => {
     const status = removeBgResponse.status === 429 ? 429 : 502;
 
     return jsonError(message, status);
+  }
+
+  const consumed = await consumeCredit(env, session.user.id);
+
+  if (!consumed) {
+    return jsonError("You are out of image credits. Please upgrade your plan.", 402);
   }
 
   return new Response(removeBgResponse.body, {
