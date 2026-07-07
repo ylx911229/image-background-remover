@@ -28,7 +28,7 @@
     "MAX_UPLOAD_MB": "10",
     "GOOGLE_CLIENT_ID": "733757166908-3182cjuil0qtgj4r7g7j1nqh896u1b3m.apps.googleusercontent.com",
     "AUTH_BASE_URL": "https://imagebackgroundremover.shop",
-    "PAYPAL_CLIENT_ID": "AWpItvsSz5htPWbkgAkzqJXxISN8ei-pGt2kFDPlMfr_T17DMnTkLU0_xM3GFBlUyBmPsBs0PXMfQ2AV",
-    "PAYPAL_ENVIRONMENT": "sandbox"
+    "PAYPAL_CLIENT_ID": "AUpQH7LeuVvDSXksc4LxJKeNjW717pyjAr_Uw6e9q-fSTc_BRPeiaTiB9QxRnOaR02DYeh8zUakbVuc0",
+    "PAYPAL_ENVIRONMENT": "live"
   }
 }
