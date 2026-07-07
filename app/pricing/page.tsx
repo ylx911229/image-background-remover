@@ -1,6 +1,7 @@
 import { ArrowRight, Check, ShieldCheck } from "lucide-react";
 import Link from "next/link";
 import { AuthButton } from "@/components/auth-button";
+import { CreditStatus } from "@/components/credit-status";
 
 const plans = [
   {
@@ -117,6 +118,10 @@ export default function PricingPage() {
             Start free, then upgrade when you need more clean cutouts for
             product photos, portraits, logos, and social posts.
           </p>
+        </div>
+
+        <div className="mt-8">
+          <CreditStatus />
         </div>
 
         <div className="mt-10 grid gap-5 lg:grid-cols-3">

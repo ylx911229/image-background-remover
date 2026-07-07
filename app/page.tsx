@@ -1,6 +1,7 @@
 import Link from "next/link";
 import { AuthButton } from "@/components/auth-button";
 import { BackgroundRemoverTool } from "@/components/background-remover-tool";
+import { CreditStatus } from "@/components/credit-status";
 
 const useCases = [
   "Product photos",
@@ -87,7 +88,10 @@ export default function Home() {
           </div>
         </div>
 
-        <BackgroundRemoverTool />
+        <div className="flex flex-col gap-4">
+          <CreditStatus compact />
+          <BackgroundRemoverTool />
+        </div>
       </section>
 
       <section className="border-y border-line bg-white" id="privacy">
