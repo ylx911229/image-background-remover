@@ -4,6 +4,7 @@ export type PayPalEnv = {
   PAYPAL_CLIENT_ID?: string;
   PAYPAL_CLIENT_SECRET?: string;
   PAYPAL_ENVIRONMENT?: string;
+  PAYPAL_WEBHOOK_ID?: string;
 };
 
 type PayPalLink = {
@@ -129,4 +130,45 @@ export async function capturePayPalOrder(env: PayPalEnv, orderId: string) {
   }
 
   return body;
+}
+
+export async function verifyPayPalWebhook(
+  env: PayPalEnv,
+  request: Request,
+  webhookEvent: unknown,
+) {
+  if (!env.PAYPAL_WEBHOOK_ID) {
+    throw new Error("PayPal webhook id is not configured.");
+  }
+
+  const accessToken = await getPayPalAccessToken(env);
+  const response = await fetch(
+    `${getPayPalBaseUrl(env)}/v1/notifications/verify-webhook-signature`,
+    {
+      method: "POST",
+      headers: {
+        Authorization: `Bearer ${accessToken}`,
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({
+        auth_algo: request.headers.get("PAYPAL-AUTH-ALGO") || "",
+        cert_url: request.headers.get("PAYPAL-CERT-URL") || "",
+        transmission_id: request.headers.get("PAYPAL-TRANSMISSION-ID") || "",
+        transmission_sig: request.headers.get("PAYPAL-TRANSMISSION-SIG") || "",
+        transmission_time: request.headers.get("PAYPAL-TRANSMISSION-TIME") || "",
+        webhook_id: env.PAYPAL_WEBHOOK_ID,
+        webhook_event: webhookEvent,
+      }),
+    },
+  );
+  const body = (await response.json().catch(() => ({}))) as {
+    verification_status?: string;
+    message?: string;
+  };
+
+  if (!response.ok) {
+    throw new Error(body.message || "Could not verify PayPal webhook signature.");
+  }
+
+  return body.verification_status === "SUCCESS";
 }

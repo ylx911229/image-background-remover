@@ -5,6 +5,7 @@ import * as logout from "../functions/api/auth/logout";
 import * as me from "../functions/api/auth/me";
 import * as paypalCapture from "../functions/api/paypal/capture";
 import * as paypalCreateOrder from "../functions/api/paypal/create-order";
+import * as paypalWebhook from "../functions/api/paypal/webhook";
 import * as removeBackground from "../functions/api/remove-background";
 
 type Env = {
@@ -18,6 +19,7 @@ type Env = {
   PAYPAL_CLIENT_ID?: string;
   PAYPAL_CLIENT_SECRET?: string;
   PAYPAL_ENVIRONMENT?: string;
+  PAYPAL_WEBHOOK_ID?: string;
 };
 
 type PagesHandler = PagesFunction<Env>;
@@ -98,6 +100,17 @@ export default {
         request.method === "GET"
           ? paypalCapture.onRequestGet
           : paypalCapture.onRequest,
+        request,
+        env,
+        ctx,
+      );
+    }
+
+    if (pathname === "/api/paypal/webhook") {
+      return runPagesHandler(
+        request.method === "POST"
+          ? paypalWebhook.onRequestPost
+          : paypalWebhook.onRequest,
         request,
         env,
         ctx,
