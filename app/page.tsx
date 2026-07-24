@@ -74,7 +74,7 @@ export default function Home() {
           </h1>
           <p className="mt-5 max-w-xl text-lg leading-8 text-slate-600">
             Remove backgrounds from product photos, portraits, and graphics in
-            seconds. Download a transparent PNG or add a clean white background.
+            seconds. Export a transparent PNG or add a clean white background.
           </p>
           <div className="mt-7 flex flex-wrap gap-3">
             {useCases.map((item) => (
